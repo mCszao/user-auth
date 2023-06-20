@@ -1,7 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import connectiondb from '../database/connectiondb';
 
-interface UserAttributes {
+export interface UserAttributes {
     id: string;
     username: string;
     password: string;
@@ -12,7 +12,7 @@ export class UserInstance extends Model<UserAttributes> {}
 UserInstance.init(
     {
         id: {
-            type: DataTypes.STRING,
+            type: DataTypes.UUIDV4,
             primaryKey: true,
             allowNull: false,
         },
