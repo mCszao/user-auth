@@ -1,7 +1,7 @@
 import { IBaseResponse } from './../interface/IBaseResponse';
 export class BaseResponse implements IBaseResponse {
-    message;
-    operationSuccess;
+    message: string;
+    operationSuccess: boolean;
     data;
 
     constructor(message: string, data: any, operationSuccess: boolean) {

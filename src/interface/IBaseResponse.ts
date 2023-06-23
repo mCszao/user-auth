@@ -1,4 +1,4 @@
 export interface IBaseResponse {
     message: string;
-    data: any;
+    operationSuccess: boolean;
 }
