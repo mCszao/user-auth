@@ -1,15 +1,9 @@
-import bcrypt, { hash } from 'bcrypt';
+import { IUserAttributes } from './../interface/IUserAttributes';
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { v4 } from 'uuid';
-import connectiondb from '../database/connectiondb';
+import database from '../database/index';
 
-export interface UserAttributes {
-    id: string;
-    username: string;
-    password: string;
-}
-
-export class UserInstance extends Model<UserAttributes> {
+export class UserInstance extends Model<IUserAttributes> {
     declare id: string;
     declare name: string;
     declare password: string;
@@ -43,8 +37,8 @@ UserInstance.init(
         },
     },
     {
-        sequelize: connectiondb,
+        sequelize: database,
         tableName: 'users',
-        underscored: true,
+        timestamps: false,
     }
 );
