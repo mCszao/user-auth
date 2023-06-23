@@ -14,6 +14,7 @@ class Util {
         if (username === '') {
             return new BaseResponse('username cannot be empty!', {}, false);
         }
+        return new BaseResponse('passed on middleware', {}, true);
     }
 }
 
