@@ -70,13 +70,16 @@ userController.post(
     '/login',
     MiddlewareCheckValidate.loginValidate,
     async (req: Request, res: Response) => {
-        const user: IUserAttributes = req.body;
         try {
+            const { username, password }: IUserAttributes = req.body;
             const model: UserInstance | null = await UserInstance.findOne({
-                where: { username: user.username },
+                where: { username: username },
             });
             console.log(
-                model?.dataValues.password + 'senha req' + user.password
+                'Senha banco' +
+                    model?.dataValues.password +
+                    'senha req' +
+                    password
             );
             if (model === null) {
                 return res
@@ -84,19 +87,30 @@ userController.post(
                     .json(new BaseResponse('Usuário não encontrado', {}, false))
                     .send();
             }
-            if (
-                await bcrypt.compare(user.password, model.dataValues.password)
-            ) {
-                return res.json(
-                    new BaseResponse('Login Efetuado com sucesso!', model, true)
-                );
+            if (await bcrypt.compare(password, model?.dataValues.password)) {
+                return res
+                    .status(200)
+                    .json(
+                        new BaseResponse(
+                            'Login Efetuado com sucesso',
+                            model.dataValues,
+                            true
+                        )
+                    )
+                    .send();
             } else {
-                return res.json(
-                    new BaseResponse('Credenciais incorretas!', {}, false)
-                );
+                return res
+                    .status(404)
+                    .json(new BaseResponse('Credênciais incorretas', {}, false))
+                    .send();
             }
         } catch (error) {
-            return new BaseResponse('Error não catalogado', error, false);
+            return res
+                .status(500)
+                .json(new BaseResponse('Usuário não cadastrado', error, false))
+                .send();
+        } finally {
+            console.log('Transação finalizada');
         }
     }
 );
