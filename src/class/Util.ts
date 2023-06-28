@@ -1,6 +1,8 @@
+import { hash } from 'bcrypt';
+import { v4 } from 'uuid';
 import { BaseResponse } from './BaseResponse';
 class Util {
-    public comumFieldValidatie(username: string, password: string) {
+    public comumFieldValidate(username: string, password: string) {
         if (password === null) {
             return new BaseResponse('password cannot be null', {}, false);
         }
@@ -15,6 +17,10 @@ class Util {
             return new BaseResponse('username cannot be empty!', {}, false);
         }
         return new BaseResponse('passed on middleware', {}, true);
+    }
+
+    public async generateUUIDandHash(password: string) {
+        return { hashedPassword: await hash(password, 10), uuid: v4() };
     }
 }
 
