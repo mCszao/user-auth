@@ -1,9 +1,9 @@
-import { IUserAttributes } from './../interface/IUserAttributes';
+import { AddressInstance } from './Address';
+import { IUser } from '../interface/IUser';
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { v4 } from 'uuid';
 import database from '../database/index';
 
-export class UserInstance extends Model<IUserAttributes> {
+export class UserInstance extends Model<IUser> {
     declare id: string;
     declare name: string;
     declare password: string;
@@ -15,12 +15,9 @@ UserInstance.init(
             type: DataTypes.UUIDV4,
             primaryKey: true,
             allowNull: false,
-            set(value: string) {
-                this.setDataValue('id', v4());
-            },
             validate: {
                 notNull: {
-                    msg: 'Id não pode ser nulo',
+                    msg: 'field id is null',
                 },
             },
         },
@@ -38,7 +35,12 @@ UserInstance.init(
     },
     {
         sequelize: database,
-        tableName: 'users',
-        timestamps: false,
+        modelName: 'user',
+        timestamps: true,
     }
 );
+
+UserInstance.hasMany(AddressInstance, {
+    foreignKey: 'user_id',
+    as: 'addresses',
+});
