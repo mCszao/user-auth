@@ -1,6 +1,7 @@
+import { AddressInstance } from './../models/Address';
 import express, { Request, Response, Router } from 'express';
 import { BaseResponse } from './../class/BaseResponse';
-import { IUserAttributes } from '../interface/IUserAttributes';
+import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import MiddlewareCheckValidate from '../class/MiddlewareCheckValidate';
 import { userService } from '../service/UserService';
@@ -16,9 +17,7 @@ router.use(express.json());
 
 router.post('/signup', async (req: Request, res: Response) => {
     try {
-        const record: UserInstance = await userService.add(
-            req.body as IUserAttributes
-        );
+        const record: UserInstance = await userService.add(req.body as IUser);
 
         return res
             .status(200)
@@ -84,17 +83,11 @@ router.post(
     MiddlewareCheckValidate.loginValidate,
     async (req: Request, res: Response) => {
         try {
-            const { username, password }: IUserAttributes = req.body;
+            const { username, password }: IUser = req.body;
             const model: UserInstance | null = await userService.login(
                 username,
                 password
             );
-            if (model === null) {
-                return res
-                    .status(404)
-                    .json(new BaseResponse('Usuário não encontrado', {}, false))
-                    .send();
-            }
             res.status(200).json(
                 new BaseResponse('Login realizado com sucesso!', model, true)
             );
@@ -108,5 +101,25 @@ router.post(
         }
     }
 );
+
+router.post('/user/:user_id/address', async (req: Request, res: Response) => {
+    try {
+        const { user_id } = req.params;
+        const address = await AddressInstance.create({ ...req.body, user_id });
+        if (address) {
+            res.status(200)
+                .json(
+                    new BaseResponse(
+                        'Endereço cadastrado com sucesso',
+                        address,
+                        true
+                    )
+                )
+                .send();
+        }
+    } catch (error) {
+        res.status(500).send('Deu ruim');
+    }
+});
 
 export default router;
