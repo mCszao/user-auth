@@ -30,9 +30,36 @@ UserInstance.init(
         },
         password: {
             type: DataTypes.STRING,
+            validate: {
+                len: {
+                    args: [8, 8],
+                    msg: 'password can be 8 characters',
+                },
+            },
+        },
+        cpf: {
+            type: DataTypes.SMALLINT,
             allowNull: false,
+            validate: {
+                notEmpty: {
+                    msg: 'field cpf is empty',
+                },
+            },
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: {
+                    msg: 'field email is empty',
+                },
+                isEmail: {
+                    msg: 'field email can be a email example: example@example.com or example@example.com.br',
+                },
+            },
         },
     },
+
     {
         sequelize: database,
         modelName: 'user',
