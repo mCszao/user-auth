@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
-import { IUserAttributes } from './../interface/IUserAttributes';
+import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import Util from '../class/Util';
 
 class UserService {
-    public async add(user: IUserAttributes): Promise<UserInstance> {
+    public async add(user: IUser): Promise<UserInstance> {
         const { uuid, hashedPassword } = await Util.generateUUIDandHash(
             user.password
         );
@@ -16,7 +16,9 @@ class UserService {
     }
 
     public async selectAll(): Promise<UserInstance[]> {
-        return await UserInstance.findAll();
+        return await UserInstance.findAll({
+            include: { association: 'addresses' },
+        });
     }
 
     public async login(username: string, password: string) {
@@ -26,7 +28,7 @@ class UserService {
                 where: { username: username },
             });
         } catch (error) {
-            throw new Error('Usuário não encontrado');
+            throw new Error('Usuário não cadastrado no banco de dados');
         }
         if (await bcrypt.compare(password, user?.dataValues.password!)) {
             return user;
