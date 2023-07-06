@@ -66,3 +66,8 @@ UserInstance.init(
         timestamps: true,
     }
 );
+
+UserInstance.hasMany(AddressInstance, {
+    foreignKey: 'user_id',
+    as: 'addresses',
+});

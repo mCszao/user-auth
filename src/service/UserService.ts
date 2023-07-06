@@ -19,6 +19,8 @@ class UserService {
         offset: number | undefined,
         limit: number | undefined
     ): Promise<UserInstance[]> {
+        console.log('entrei no select');
+
         return await UserInstance.findAll({
             include: { association: 'addresses', where: {}, limit: 1 },
             where: {},
