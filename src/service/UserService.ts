@@ -15,21 +15,25 @@ class UserService {
         });
     }
 
-    public async selectAll(): Promise<UserInstance[]> {
+    public async selectAll(
+        offset: number | undefined,
+        limit: number | undefined
+    ): Promise<UserInstance[]> {
         return await UserInstance.findAll({
-            include: { association: 'addresses' },
+            include: { association: 'addresses', where: {}, limit: 1 },
+            where: {},
+            limit,
+            offset,
         });
     }
 
     public async login(username: string, password: string) {
         let user = null;
-        try {
-            user = await UserInstance.findOne({
-                where: { username: username },
-            });
-        } catch (error) {
+        user = await UserInstance.findOne({
+            where: { username: username },
+        });
+        if (user == null)
             throw new Error('Usuário não cadastrado no banco de dados');
-        }
         if (await bcrypt.compare(password, user?.dataValues.password!)) {
             return user;
         } else {
