@@ -7,6 +7,7 @@ export class UserInstance extends Model<IUser> {
     declare id: string;
     declare name: string;
     declare password: string;
+    declare email: string;
 }
 
 UserInstance.init(
@@ -30,19 +31,18 @@ UserInstance.init(
         },
         password: {
             type: DataTypes.STRING,
-            validate: {
-                len: {
-                    args: [8, 8],
-                    msg: 'password can be 8 characters',
-                },
-            },
+            allowNull: false,
         },
         cpf: {
-            type: DataTypes.SMALLINT,
+            type: DataTypes.STRING,
             allowNull: false,
             validate: {
                 notEmpty: {
                     msg: 'field cpf is empty',
+                },
+                len: {
+                    msg: 'O cpf precisa ter 11 números',
+                    args: [10, 11],
                 },
             },
         },
@@ -62,12 +62,7 @@ UserInstance.init(
 
     {
         sequelize: database,
-        modelName: 'user',
+        modelName: 'users',
         timestamps: true,
     }
 );
-
-UserInstance.hasMany(AddressInstance, {
-    foreignKey: 'user_id',
-    as: 'addresses',
-});
