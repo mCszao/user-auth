@@ -1,5 +1,4 @@
-import { UserInstance } from './User';
-import { IUser } from './../interface/IUser';
+
 import { IAddress } from './../interface/IAddress';
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import database from '../database/index';
@@ -8,6 +7,10 @@ export class AddressInstance extends Model<IAddress> {}
 
 AddressInstance.init(
     {
+        user_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         street: {
             type: DataTypes.STRING,
         },
@@ -33,3 +36,5 @@ AddressInstance.init(
         timestamps: true,
     }
 );
+
+
