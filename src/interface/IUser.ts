@@ -4,7 +4,7 @@ export interface IUser {
     id: string;
     username: string;
     password: string;
-    cpf: string;
+    cpf: number;
     email: string;
     Addresses?: Array<IAddress>;
 }
