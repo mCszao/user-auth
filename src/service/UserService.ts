@@ -42,6 +42,16 @@ class UserService {
             throw new Error('Senha inválida');
         }
     }
+
+    public async getUserByName(username: string) {
+        try {
+            return await UserInstance.findOne({
+                where: { username },
+            });
+        } catch (error: any) {
+            throw new Error('Error:' + error.errors);
+        }
+    }
 }
 
 export const userService = new UserService();
