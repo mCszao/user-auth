@@ -4,11 +4,11 @@ import { UserInstance } from '../models/User';
 import Util from '../class/Util';
 
 class UserService {
-    public async add(user: IUser): Promise<UserInstance> {
+    public async add(user: IUser): Promise<void> {
         const { uuid, hashedPassword } = await Util.generateUUIDandHash(
             user.password
         );
-        return await UserInstance.create({
+        await UserInstance.create({
             ...user,
             id: uuid,
             password: hashedPassword,
@@ -19,23 +19,30 @@ class UserService {
         offset: number | undefined,
         limit: number | undefined
     ): Promise<UserInstance[]> {
-        console.log('entrei no select');
-
-        return await UserInstance.findAll({
-            include: { association: 'addresses', where: {}, limit: 1 },
-            where: {},
-            limit,
-            offset,
-        });
+        try {
+            return await UserInstance.findAll({
+                include: { association: 'addresses', where: {}, limit: 1 },
+                where: {},
+                limit,
+                offset,
+            });
+        } catch (error: any) {
+            throw new Error(error);
+        }
     }
 
-    public async login(username: string, password: string) {
+    public async login(
+        username: string,
+        password: string
+    ): Promise<UserInstance | null> {
         let user = null;
-        user = await UserInstance.findOne({
-            where: { username: username },
-        });
-        if (user == null)
-            throw new Error('Usuário não cadastrado no banco de dados');
+        try {
+            user = await UserInstance.findOne({
+                where: { username: username },
+            });
+        } catch (error: any) {
+            throw new Error(`Usuário não cadastrado`);
+        }
         if (await bcrypt.compare(password, user?.dataValues.password!)) {
             return user;
         } else {
@@ -43,10 +50,11 @@ class UserService {
         }
     }
 
-    public async getUserByName(username: string) {
+    public async selectByName(username: string): Promise<UserInstance | null> {
         try {
             return await UserInstance.findOne({
                 where: { username },
+                include: { association: 'addresses' },
             });
         } catch (error: any) {
             throw new Error('Error:' + error.errors);
@@ -54,4 +62,4 @@ class UserService {
     }
 }
 
-export const userService = new UserService();
+export default new UserService();
