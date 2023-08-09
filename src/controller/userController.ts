@@ -2,20 +2,17 @@ import { Request, Response } from 'express';
 import { BaseResponse } from '../class/BaseResponse';
 import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
-import { userService } from '../service/UserService';
+import UserService from '../service/UserService';
 
 class UserController {
     public async signUp(req: Request, res: Response): Promise<Response> {
         try {
-            const record: UserInstance = await userService.add(
-                req.body as IUser
-            );
             return res
                 .status(200)
                 .json(
                     new BaseResponse(
                         'Cadastro realizado com sucesso!',
-                        record,
+                        await UserService.add(req.body as IUser),
                         true
                     )
                 );
@@ -33,10 +30,10 @@ class UserController {
         }
     }
 
-    public async login(req: Request, res: Response) {
+    public async login(req: Request, res: Response): Promise<Response> {
         try {
             const { username, password } = req.body;
-            const record = await userService.login(username, password);
+            const record = await UserService.login(username, password);
             return res
                 .status(200)
                 .json(
@@ -47,38 +44,53 @@ class UserController {
                     )
                 );
         } catch (error: any) {
-            res.status(500).json(
-                new BaseResponse('Error', error.message, false)
-            );
+            return res
+                .status(500)
+                .json(new BaseResponse('Error', error.message, false));
         }
     }
-    public async getAll(req: Request, res: Response) {
+    public async getAll(req: Request, res: Response): Promise<Response> {
         const limit = req.query?.limit as number | undefined;
         const offSet = req.query?.offset as number | undefined;
         try {
-            res.status(200).json(
-                new BaseResponse(
-                    'Consulta realizada com sucesso',
-                    await userService.selectAll(limit, offSet),
-                    true
-                )
-            );
+            return res
+                .status(200)
+                .json(
+                    new BaseResponse(
+                        'Consulta realizada com sucesso',
+                        await UserService.selectAll(limit, offSet),
+                        true
+                    )
+                );
         } catch (error: any) {
-            res.status(500).json(
-                new BaseResponse(
-                    'Não foi possível realizar a consulta',
-                    {},
-                    false
-                )
-            );
+            return res
+                .status(500)
+                .json(
+                    new BaseResponse(
+                        'Não foi possível realizar a consulta',
+                        {},
+                        false
+                    )
+                );
         }
     }
 
-    public async getByName(req: Request, res: Response) {
+    public async getByName(req: Request, res: Response): Promise<Response> {
         try {
-            return res.json()
-        } catch (error) {
-            
+            return res
+                .status(200)
+                .json(await UserService.selectByName(req.params.username))
+                .send();
+        } catch (error: any) {
+            return res
+                .status(500)
+                .json(
+                    new BaseResponse(
+                        'Não foi possível realizar a consulta',
+                        error,
+                        false
+                    )
+                );
         }
     }
 }
