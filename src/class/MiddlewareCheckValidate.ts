@@ -1,5 +1,5 @@
 import { BaseResponse } from './BaseResponse';
-import { IUserAttributes } from './../interface/IUserAttributes';
+import { IUser } from '../interface/IUser';
 import { Request, Response, NextFunction } from 'express';
 import Util from './Util';
 class MiddlewareCheckValidate {
@@ -8,8 +8,28 @@ class MiddlewareCheckValidate {
         res: Response,
         next: NextFunction
     ) {
-        const { username, password }: IUserAttributes = req.body;
-        const isValid = Util.comumFieldValidatie(username, password);
+        // Object.keys(req.body).forEach((key) => {
+        //     if (key != 'password') {
+        //         if (key != 'username')
+        //             return res
+        //                 .status(404)
+        //                 .json({
+        //                     warning:
+        //                         'JSON with not acceptable keys',
+        //                 })
+        //                 .send();
+        //         return res
+        //             .status(404)
+        //             .json({
+        //                 warning:
+        //                     'The object send not compatible type of this route request body',
+        //             })
+        //             .send();
+        //     }
+        // });
+
+        const { username, password }: IUser = req.body;
+        const isValid = Util.comumFieldValidate(username, password);
         if (!isValid?.operationSuccess) {
             return res.status(404).json(isValid).send();
         }
