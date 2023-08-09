@@ -6,7 +6,7 @@ class App {
     constructor() {
         this.server = express();
         this.middlewareJSONParse();
-        this.connectionDB();
+        this.database();
         this.router();
     }
 
@@ -14,7 +14,7 @@ class App {
         this.server.use(express.json());
     }
 
-    private async connectionDB() {
+    private async database() {
         try {
             await sequelize.authenticate();
             console.log('Connection has been established successfully.');
