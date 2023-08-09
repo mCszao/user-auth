@@ -1,6 +1,7 @@
 import { AddressInstance } from './Address';
 import { IUser } from '../interface/IUser';
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
+
 import database from '../database/index';
 
 export class UserInstance extends Model<IUser> {
