@@ -5,7 +5,7 @@ import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import MiddlewareCheckValidate from '../class/MiddlewareCheckValidate';
 import UserService from '../service/UserService';
-import UserController from '../controller/userController';
+import UserController from '../controller/UserController';
 import Util from '../class/Util';
 import AddressController from '../controller/AddressController';
 
