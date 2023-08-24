@@ -64,6 +64,11 @@ UserInstance.init(
     {
         sequelize: database,
         modelName: 'users',
+        defaultScope: {
+            attributes: {
+                exclude: ['password'],
+            },
+        },
         timestamps: true,
     }
 );
