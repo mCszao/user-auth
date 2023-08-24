@@ -1,10 +1,10 @@
-import { AddressInstance } from './../models/Address';
+import bcrypt from 'bcrypt';
 import express, { Request, Response, Router } from 'express';
 import { BaseResponse } from './../class/BaseResponse';
-import { IUser } from '../interface/IUser';
+
 import { UserInstance } from '../models/User';
 import MiddlewareCheckValidate from '../class/MiddlewareCheckValidate';
-import UserService from '../service/UserService';
+
 import UserController from '../controller/UserController';
 import Util from '../class/Util';
 import AddressController from '../controller/AddressController';
@@ -33,7 +33,7 @@ router.post(
     UserController.login
 );
 
-router.post('/user:user_id/address', AddressController.addAddressByUserId);
+router.post('/user=:user_id/address', AddressController.addAddressByUserId);
 
 router.patch('/forgot-password', async (req: Request, res: Response) => {
     let model = null;
@@ -45,37 +45,70 @@ router.patch('/forgot-password', async (req: Request, res: Response) => {
                 email: email,
             },
         })) as UserInstance | null;
+
         if (model === null) {
-            return res.status(404).send('email não encontrado');
+            return res
+                .status(404)
+                .send(new BaseResponse('email não encontrado', {}, false));
         }
         console.log(model);
-        res.redirect('/reset-password/' + model?.id);
+        await Util.sendResetPasswordBuilder(model.dataValues.id, email);
     } catch (error: any) {
         res.status(500).json(
-            new BaseResponse('Erro no forgot', error.message, false)
+            new BaseResponse('Error no forgot', error.message, false)
         );
     }
 });
 
-router.patch(
-    '/reset-password/:user_id',
-    async (req: Request, res: Response) => {
-        console.log('entrou');
-
-        const userId = req.params.user_id;
-        const { email } = req.body;
-        await Util.sendResetPasswordBuilder(userId, email);
-        try {
-            res.send(`Seu id é ${userId} e do body ${email}`);
-        } catch (error) {
-            res.send('Não conseguiu achar ID na rota reset');
+router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
+    const { user_id } = req.params;
+    const { previousPassword, newPassword } = req.body;
+    try {
+        const user = await UserInstance.findByPk(user_id);
+        if (user != null) {
+            const validPassword = await bcrypt.compare(
+                previousPassword,
+                user.password
+            );
+            if (validPassword) {
+                const { hashedPassword } = await Util.generateUUIDandHash(
+                    newPassword
+                );
+                user.password = hashedPassword;
+                await user.save();
+                return res
+                    .status(200)
+                    .json(
+                        new BaseResponse(
+                            'Password updated with success',
+                            {},
+                            true
+                        )
+                    )
+                    .send();
+            }
+            return res
+                .status(404)
+                .json(
+                    new BaseResponse(
+                        'previous password doesnt match with database',
+                        {},
+                        false
+                    )
+                )
+                .send();
         }
+        return res
+            .status(404)
+            .json(new BaseResponse('User not find', {}, false));
+    } catch (error: any) {
+        return res
+            .status(500)
+            .json(
+                new BaseResponse('Error no new Password', error.message, false)
+            )
+            .send();
     }
-);
-
-// router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
-//     const { user_id } = req.params;
-
-// });
+});
 
 export default router;
