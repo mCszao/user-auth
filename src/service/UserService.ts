@@ -40,8 +40,9 @@ class UserService {
             user = await UserInstance.findOne({
                 where: { username: username },
             });
+            if (user == null) throw new Error('Usuário não cadastrado');
         } catch (error: any) {
-            throw new Error(`Usuário não cadastrado`);
+            throw new Error(error.message);
         }
         if (await bcrypt.compare(password, user?.dataValues.password!)) {
             return user;
