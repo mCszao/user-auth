@@ -90,9 +90,8 @@ router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
             return res
                 .status(404)
                 .json(
-                    new BaseResponse(
+                    BaseResponse.prototype.withoutData(
                         'previous password doesnt match with database',
-                        {},
                         false
                     )
                 )
@@ -100,12 +99,15 @@ router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
         }
         return res
             .status(404)
-            .json(new BaseResponse('User not find', {}, false));
+            .json(BaseResponse.prototype.withoutData(`User not find`, false));
     } catch (error: any) {
         return res
             .status(500)
             .json(
-                new BaseResponse('Error no new Password', error.message, false)
+                BaseResponse.prototype.withoutData(
+                    `Error no new password`,
+                    false
+                )
             )
             .send();
     }
