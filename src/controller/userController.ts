@@ -46,7 +46,7 @@ class UserController {
         } catch (error: any) {
             return res
                 .status(500)
-                .json(new BaseResponse('Error', error.message, false));
+                .json(new BaseResponse(error.message, {}, false));
         }
     }
     public async getAll(req: Request, res: Response): Promise<Response> {
