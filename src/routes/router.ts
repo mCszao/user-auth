@@ -5,15 +5,21 @@ import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import MiddlewareCheckValidate from '../class/MiddlewareCheckValidate';
 import UserService from '../service/UserService';
-import UserController from '../controller/UserController';
+import UserController from '../controller/userController';
 import Util from '../class/Util';
 import AddressController from '../controller/AddressController';
 
 const router = Router();
 router.get('/', (req: Request, res: Response) => {
-    res.json({
-        message: 'Você caiu na rota principal',
-    });
+    res.json(
+        new BaseResponse(
+            'You are in default route',
+            {
+                message: 'Você caiu na rota principal',
+            },
+            true
+        )
+    );
 });
 
 router.get('/users', UserController.getAll);
