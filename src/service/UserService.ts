@@ -38,13 +38,15 @@ class UserService {
         let user = null;
         try {
             user = await UserInstance.findOne({
+                attributes : ['id', 'username', 'password', 'cpf', 'email'],
                 where: { username: username },
+                include: { association: 'addresses' }
             });
             if (user == null) throw new Error('Usuário não cadastrado');
         } catch (error: any) {
             throw new Error(error.message);
         }
-        if (await bcrypt.compare(password, user?.dataValues.password!)) {
+        if (await bcrypt.compare(password, user?.password!)) {
             return user;
         } else {
             throw new Error('Senha inválida');
