@@ -40,7 +40,7 @@ router.patch('/forgot-password', async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
         model = (await UserInstance.findOne({
-            attributes: ['id'],
+            attributes: ['id', 'email'],
             where: {
                 email: email,
             },
@@ -52,7 +52,9 @@ router.patch('/forgot-password', async (req: Request, res: Response) => {
                 .send(new BaseResponse('email não encontrado', {}, false));
         }
         console.log(model);
-        await Util.sendResetPasswordBuilder(model.dataValues.id, email);
+        // await Util.sendResetPasswordBuilder(model.dataValues.id, email);
+        res.status(200).send(BaseResponse.prototype.withoutData(`Your reset link has been send in ${model.email}`, true));
+
     } catch (error: any) {
         res.status(500).json(
             new BaseResponse('Error no forgot', error.message, false)
