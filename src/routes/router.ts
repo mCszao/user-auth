@@ -24,15 +24,14 @@ router.get('/', (req: Request, res: Response) => {
 
 router.get('/users', UserController.getAll);
 router.get('/users/:username', UserController.getByName);
+router.get('/profile', UserController.getProfile)
 
 router.post('/signup', UserController.signUp);
-
 router.post(
     '/login',
     MiddlewareCheckValidate.loginValidate,
     UserController.login
 );
-
 router.post('/user=:user_id/address', AddressController.addAddressByUserId);
 
 router.patch('/forgot-password', async (req: Request, res: Response) => {
