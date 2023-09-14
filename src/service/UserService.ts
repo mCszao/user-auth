@@ -40,20 +40,20 @@ class UserService {
                 include: { association: 'addresses' },
             });
             if (user == null) throw new Error('Usuário não cadastrado');
+            if (await bcrypt.compare(password, user?.password!)) {
+                const { password, ...restUser } = user.dataValues;
+                const token = sign({ id: restUser.id }, 'studyOnly', {
+                    expiresIn: '6h',
+                });
+                return {
+                    userData: restUser,
+                    accessToken: token,
+                };
+            } else {
+                throw new Error('Senha inválida');
+            }
         } catch (error: any) {
             throw new Error(error.message);
-        }
-        if (await bcrypt.compare(password, user?.password!)) {
-            const { password, ...restUser } = user.dataValues;
-            const token = sign({ id: restUser.id }, 'studyOnly', {
-                expiresIn: '6h',
-            });
-            return {
-                userData: restUser,
-                accessToken: token,
-            };
-        } else {
-            throw new Error('Senha inválida');
         }
     }
 
