@@ -2,7 +2,11 @@ import bcrypt from 'bcrypt';
 import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import Util from '../class/Util';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
+
+type Payload = {
+    id: number;
+};
 class UserService {
     public async add(user: IUser): Promise<void> {
         const { uuid, hashedPassword } = await Util.generateUUIDandHash(
@@ -61,6 +65,19 @@ class UserService {
         try {
             return await UserInstance.findOne({
                 where: { username },
+                include: { association: 'addresses' },
+            });
+        } catch (error: any) {
+            throw new Error('Error:' + error.errors);
+        }
+    }
+
+    public async selectByID(token: string): Promise<UserInstance | null> {
+        const beautyToken =
+            token.split(' ').length > 1 ? token.split(' ')[1] : token;
+        const { id } = verify(beautyToken, 'studyOnly') as Payload;
+        try {
+            return await UserInstance.findByPk(id, {
                 include: { association: 'addresses' },
             });
         } catch (error: any) {
