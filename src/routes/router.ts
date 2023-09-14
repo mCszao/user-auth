@@ -24,7 +24,7 @@ router.get('/', (req: Request, res: Response) => {
 
 router.get('/users', UserController.getAll);
 router.get('/users/:username', UserController.getByName);
-router.get('/profile', UserController.getProfile)
+router.get('/profile', UserController.getProfile);
 
 router.post('/signup', UserController.signUp);
 router.post(
@@ -52,8 +52,12 @@ router.patch('/forgot-password', async (req: Request, res: Response) => {
         }
         console.log(model);
         // await Util.sendResetPasswordBuilder(model.dataValues.id, email);
-        res.status(200).send(BaseResponse.prototype.withoutData(`Your reset link has been send in ${model.email}`, true));
-
+        res.status(200).send(
+            BaseResponse.prototype.withoutData(
+                `Your reset link has been send in ${model.email}`,
+                true
+            )
+        );
     } catch (error: any) {
         res.status(500).json(
             new BaseResponse('Error no forgot', error.message, false)
@@ -65,7 +69,9 @@ router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
     const { user_id } = req.params;
     const { previousPassword, newPassword } = req.body;
     try {
-        const user = await UserInstance.findByPk(user_id);
+        const user = await UserInstance.findByPk(user_id, {
+            attributes: ['id', 'password'],
+        });
         if (user != null) {
             const validPassword = await bcrypt.compare(
                 previousPassword,
@@ -104,12 +110,7 @@ router.patch('/new-password/:user_id', async (req: Request, res: Response) => {
     } catch (error: any) {
         return res
             .status(500)
-            .json(
-                BaseResponse.prototype.withoutData(
-                    `Error no new password`,
-                    false
-                )
-            )
+            .json(BaseResponse.prototype.withoutData(error.message, false))
             .send();
     }
 });
