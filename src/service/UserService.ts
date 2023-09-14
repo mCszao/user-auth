@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { IUser } from '../interface/IUser';
 import { UserInstance } from '../models/User';
 import Util from '../class/Util';
-
+import { sign } from 'jsonwebtoken';
 class UserService {
     public async add(user: IUser): Promise<void> {
         const { uuid, hashedPassword } = await Util.generateUUIDandHash(
@@ -31,23 +31,27 @@ class UserService {
         }
     }
 
-    public async login(
-        username: string,
-        password: string
-    ): Promise<UserInstance | null> {
+    public async login(username: string, password: string): Promise<any> {
         let user = null;
         try {
             user = await UserInstance.findOne({
-                attributes : ['id', 'username', 'password', 'cpf', 'email'],
+                attributes: ['id', 'username', 'password'],
                 where: { username: username },
-                include: { association: 'addresses' }
+                include: { association: 'addresses' },
             });
             if (user == null) throw new Error('Usuário não cadastrado');
         } catch (error: any) {
             throw new Error(error.message);
         }
         if (await bcrypt.compare(password, user?.password!)) {
-            return user;
+            const { password, ...restUser } = user.dataValues;
+            const token = sign({ id: restUser.id }, 'studyOnly', {
+                expiresIn: '6h',
+            });
+            return {
+                userData: restUser,
+                accessToken: token,
+            };
         } else {
             throw new Error('Senha inválida');
         }
