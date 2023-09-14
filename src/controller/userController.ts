@@ -93,6 +93,35 @@ class UserController {
                 );
         }
     }
+    public async getProfile(req: Request, res: Response): Promise<any> {
+        const { authorization } = req.headers;
+        if (!authorization)
+            return res
+                .status(401)
+                .json(
+                    BaseResponse.prototype.withoutData(
+                        'authorization field not found in headers',
+                        false
+                    )
+                )
+                .send();
+        try {
+            return res
+                .status(200)
+                .json(await UserService.selectByID(authorization))
+                .send();
+        } catch (error: any) {
+            return res
+                .status(500)
+                .json(
+                    new BaseResponse(
+                        'Não foi possível realizar a consulta',
+                        error,
+                        false
+                    )
+                );
+        }
+    }
 }
 
 export default new UserController();
